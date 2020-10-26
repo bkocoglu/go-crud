@@ -1,13 +1,12 @@
 package main
 
 import (
-	"github.com/bilalkocoglu/go-crud/pkg/api"
 	"github.com/bilalkocoglu/go-crud/pkg/config"
-	"github.com/bilalkocoglu/go-crud/pkg/mw"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/bilalkocoglu/go-crud/pkg/entity"
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
-	"io/ioutil"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 func main() {
@@ -16,27 +15,15 @@ func main() {
 		log.Fatal().Err(err).Msg("Load config failed")
 	}
 
-	/*
-		server, err := server.NewServer(cfg)
-		if err != nil {
-			log.Fatal().Err(err).Msg("Failed server")
-		}
-	*/
+	e := config.PrepareServer(cfg)
+	config.DB, err = gorm.Open(mysql.Open(config.DbURL(config.BuildDBConfig())), &gorm.Config{})
+	err = config.DB.AutoMigrate(&entity.User{})
 
-	e := echo.New()
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowCredentials: true,
-		AllowMethods:     []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
-		AllowOrigins:     []string{"*"},
-	}))
-
-	e.Logger.SetOutput(ioutil.Discard)
-	g := e.Group("/v1")
-
-	mw.SetInterceptors(g)
-	api.RegisterHandlers(g)
+	if err != nil {
+		errors.Wrap(err, "Db migration error !")
+	}
 
 	log.Info().Str("addr", cfg.Addr).Msg("starting http listener")
-	err = e.Start(cfg.Addr)
+	err = e.Run(cfg.Addr)
 	log.Fatal().Err(err).Msg("Server failed")
 }
