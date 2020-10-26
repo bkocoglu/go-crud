@@ -2,53 +2,65 @@ package mw
 
 import (
 	_const "github.com/bilalkocoglu/go-crud/pkg/const"
-	"github.com/labstack/echo/v4"
+	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 	"net/http"
 	"strings"
 )
 
-func BasicAuth(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(context echo.Context) error {
-		req := context.Request()
+func BasicAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		req := c.Request
 
 		basicToken := req.Header.Get(_const.AuthorizationHeader)
 
 		if basicToken == "" {
-			return echo.NewHTTPError(http.StatusUnauthorized, "Token must be not null.")
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": "Token must be not null.",
+			})
+			return
 		}
 
 		tokenType, token := parseToken(basicToken)
 
 		if tokenType != "Basic" {
-			return echo.NewHTTPError(http.StatusUnauthorized, "Token type must be Basic.")
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": "Token type must be Basic.",
+			})
+			return
 		}
 
 		log.Info().Msg("tokenType: " + tokenType + " token: " + token)
 
-		return next(context)
+		c.Next()
 	}
 }
 
-func JwtAuth(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(context echo.Context) error {
-		req := context.Request()
+func JwtAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		req := c.Request
 
 		bearerToken := req.Header.Get(_const.AuthorizationHeader)
 
 		if bearerToken == "" {
-			return echo.NewHTTPError(http.StatusUnauthorized, "Token must be not null.")
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": "Token must be not null.",
+			})
+			return
 		}
 
 		tokenType, token := parseToken(bearerToken)
 
 		if tokenType != "Bearer" {
-			return echo.NewHTTPError(http.StatusUnauthorized, "Token type must be Bearer.")
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": "Token type must be Bearer.",
+			})
+			return
 		}
 
 		log.Info().Msg("tokenType: " + tokenType + " token: " + token)
 
-		return next(context)
+		c.Next()
 	}
 }
 

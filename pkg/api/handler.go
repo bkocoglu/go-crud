@@ -2,10 +2,10 @@ package api
 
 import (
 	"github.com/bilalkocoglu/go-crud/pkg/mw"
-	"github.com/labstack/echo/v4"
+	"github.com/gin-gonic/gin"
 )
 
-func RegisterHandlers(g *echo.Group) {
-	g.GET("/", hello, mw.BasicAuth)
-	g.GET("/a", helloA, mw.JwtAuth)
+func RegisterHandlers(g *gin.RouterGroup) {
+	g.GET("/", mw.BasicAuth(), hello)
+	g.GET("/a", mw.JwtAuth(), helloA)
 }
