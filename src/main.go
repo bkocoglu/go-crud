@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
+	"github.com/bilalkocoglu/go-crud/pkg/api"
 	"github.com/bilalkocoglu/go-crud/pkg/config"
+	"github.com/bilalkocoglu/go-crud/pkg/middleware"
 	"github.com/bilalkocoglu/go-crud/pkg/server"
+	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
-	"net/http"
+	"io/ioutil"
 )
 
 func main() {
@@ -19,12 +22,15 @@ func main() {
 		log.Fatal().Err(err).Msg("Failed server")
 	}
 
-	log.Info().Msg(fmt.Sprintf("%#v", server))
-	http.HandleFunc("/", homePage)
-	http.ListenAndServe(":10000", nil)
-}
+	e := echo.New()
+	e.Logger.SetOutput(ioutil.Discard)
+	g := e.Group("/v1")
 
-func homePage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to the HomePage!")
-	fmt.Println("Endpoint Hit: homePage")
+	middleware.SetInterceptors(g)
+	api.RegisterHandlers(g)
+
+	log.Info().Msg(fmt.Sprintf("%#v", server))
+	log.Info().Str("addr", cfg.Addr).Msg("starting http listener")
+	err = e.Start(cfg.Addr)
+	log.Fatal().Err(err).Msg("Server failed")
 }
