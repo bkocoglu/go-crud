@@ -1,4 +1,4 @@
-package middleware
+package mw
 
 import (
 	"github.com/labstack/echo/v4"
