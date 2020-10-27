@@ -6,7 +6,8 @@ import (
 )
 
 func RegisterHandlers(g *gin.RouterGroup) {
+	g.POST("/login", Login)
+
 	g.GET("/", mw.BasicAuth(), Hello)
 	g.GET("/a", mw.JwtAuth(), HelloA)
-
 }

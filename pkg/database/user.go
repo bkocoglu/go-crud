@@ -66,3 +66,9 @@ func GetUserByUsername(user *User, username string) (err error) {
 
 	return nil
 }
+
+func GetUserById(user *User, id uint64) (err error) {
+	DB.Where("id = ?", id).First(user)
+
+	return nil
+}
