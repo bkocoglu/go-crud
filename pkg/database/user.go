@@ -62,8 +62,7 @@ func SaveUser(user *User) (err error) {
 }
 
 func GetUserByUsername(user *User, username string) (err error) {
-	if err = DB.Where("username = ?", username).First(user).Error; err != nil {
-		return err
-	}
+	DB.Where("username = ?", username).First(user)
+
 	return nil
 }
