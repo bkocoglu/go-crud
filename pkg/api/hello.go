@@ -6,11 +6,11 @@ import (
 	"net/http"
 )
 
-func hello(c *gin.Context) {
+func Hello(c *gin.Context) {
 	c.String(http.StatusOK, "Hello, World!")
 }
 
-func helloA(c *gin.Context) {
+func HelloA(c *gin.Context) {
 	m := &model.Response{
 		Message: "Hello world A!",
 	}

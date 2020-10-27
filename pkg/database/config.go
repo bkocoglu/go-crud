@@ -1,7 +1,8 @@
-package config
+package database
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
 
@@ -34,4 +35,14 @@ func DbURL(dbConfig *DBConfig) string {
 		dbConfig.Port,
 		dbConfig.DBName,
 	)
+}
+
+func Migration() {
+	err := DB.AutoMigrate(&User{})
+
+	if err != nil {
+		errors.Wrap(err, "Db migration error !")
+	}
+
+	CreateDefaultUser()
 }
