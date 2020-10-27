@@ -1,18 +1,38 @@
 package api
 
 import (
+	_const "github.com/bilalkocoglu/go-crud/pkg/const"
+	"github.com/bilalkocoglu/go-crud/pkg/database"
 	"github.com/bilalkocoglu/go-crud/pkg/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func hello(c *gin.Context) {
-	c.String(http.StatusOK, "Hello, World!")
+func Hello(c *gin.Context) {
+	value, exists := c.Get(_const.CurrentUser)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "User must be not null",
+		})
+		return
+	}
+	user := value.(database.User)
+
+	c.String(http.StatusOK, "Hello, World ! => "+user.Name)
 }
 
-func helloA(c *gin.Context) {
+func HelloA(c *gin.Context) {
+	value, exists := c.Get(_const.CurrentUser)
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "User must be not null",
+		})
+		return
+	}
+
+	user := value.(database.User)
 	m := &model.Response{
-		Message: "Hello world A!",
+		Message: "Hello world ! => " + user.Name,
 	}
 	c.JSON(http.StatusOK, m)
 }
