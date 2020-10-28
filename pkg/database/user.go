@@ -16,10 +16,12 @@ type User struct {
 	Email     string     `json:"email"`
 	Age       uint8      `json:"age"`
 	Birthday  *time.Time `json:"birthday"`
-	Address   Address    `gorm:"embedded;embeddedPrefix:address_" json:"address"`
+	Address   Address    `gorm:"foreignKey:AddressId;references:id" json:"address"`
+	AddressId uint
 }
 
 type Address struct {
+	ID       uint   `gorm:"primarykey" json:"id"`
 	City     string `json:"city"`
 	District string `json:"district"`
 }
@@ -62,13 +64,13 @@ func SaveUser(user *User) (err error) {
 }
 
 func GetUserByUsername(user *User, username string) (err error) {
-	DB.Where("username = ?", username).First(user)
+	DB.Joins("Address").Where("username = ?", username).First(user)
 
 	return nil
 }
 
 func GetUserById(user *User, id uint64) (err error) {
-	DB.Where("id = ?", id).First(user)
+	DB.Joins("Address").Where("id = ?", id).First(user)
 
 	return nil
 }
