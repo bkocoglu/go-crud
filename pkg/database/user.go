@@ -18,12 +18,18 @@ type User struct {
 	Birthday  *time.Time `json:"birthday"`
 	Address   Address    `gorm:"foreignKey:AddressId;references:id" json:"address"`
 	AddressId uint
+	Languages []*Language `gorm:"many2many:user_languages;"`
 }
 
 type Address struct {
 	ID       uint   `gorm:"primarykey" json:"id"`
 	City     string `json:"city"`
 	District string `json:"district"`
+}
+
+type Language struct {
+	ID   uint   `gorm:"primarykey" json:"id"`
+	Name string `json:"name"`
 }
 
 func CreateDefaultUser() {
@@ -46,6 +52,14 @@ func CreateDefaultUser() {
 				City:     _const.City,
 				District: _const.District,
 			},
+			Languages: []*Language{
+				{
+					Name: "Turkce",
+				},
+				{
+					Name: "Ingilizce",
+				},
+			},
 		}
 
 		err := SaveUser(&user)
@@ -64,7 +78,7 @@ func SaveUser(user *User) (err error) {
 }
 
 func GetUserByUsername(user *User, username string) (err error) {
-	DB.Joins("Address").Where("username = ?", username).First(user)
+	DB.Preload("Languages").Joins("Address").Where("username = ?", username).First(user)
 
 	return nil
 }
