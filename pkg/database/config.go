@@ -38,7 +38,7 @@ func DbURL(dbConfig *DBConfig) string {
 }
 
 func Migration() {
-	err := DB.AutoMigrate(&User{})
+	err := DB.AutoMigrate(&User{}, &Address{})
 
 	if err != nil {
 		errors.Wrap(err, "Db migration error !")
